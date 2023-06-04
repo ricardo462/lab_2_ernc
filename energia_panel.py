@@ -3,10 +3,9 @@ import numpy as np
 I_sc = [[0, 0], [200, 0.5], [400, 1.2], [600, 1.5], [800, 2], [1000, 2.5]]
 V_oc = [[i, 100] for i in range(0, 26)] + [[30, 90], [35, 75], [40, 60]] + [[i, 40] for i in range(45, 151)]
 
+"""
 x = [i[0] for i in V_oc]
 y = [i[1] for i in V_oc]
-
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 # Plot a straight diagonal line with ticked style path
@@ -51,9 +50,8 @@ fall =   [12.68455333, 12.12553667, 11.60707, 11.16800667, 10.83918667, 10.58893
 winter = [7.571626667, 7.21006, 6.896653333, 6.591713333, 6.32097, 6.103143333, 5.9396, 5.525186667, 6.030076667, 7.691563333, 9.68753, 11.77819333, 13.55514333, 15.02605, 15.87455, 16.03531667, 15.41590333, 13.87986, 12.02218, 10.71321667, 9.807963333, 9.103983333, 8.523153333, 8.007173333]
 spring = [11.22041, 10.65799, 10.17517667, 9.716236667, 9.34276, 8.9439, 8.767786667, 9.72994, 11.74203667, 14.17875333, 16.49450333, 18.6219, 20.39092667, 21.63087, 22.20581333, 22.14179667, 21.48144667, 20.32521, 18.71178333, 16.64095, 14.93355, 13.66322, 12.76220667, 11.95249]
 
-temp_typical_days = [summer, fall, winter, spring]
+temp_typical_days = np.array([summer, fall, winter, spring])
 
-V, I = [], []
 
 def get_values(typical_seasons, response_values):
     result = []
@@ -66,8 +64,15 @@ def get_values(typical_seasons, response_values):
 
     return np.array(result)
 I = get_values(irr_typical_days, I_sc)
-V = get_values(temp_typical_days, V_oc)
+print('I_sc \n', np.round(I, 2))
+V = get_values(temp_typical_days + 20, V_oc)
+print('V_op \n', np.round(V, 2))
+
+np.savetxt('Isc.csv', np.round(I, 2), delimiter=';', fmt='%1.3f')
+np.savetxt('Vop.csv', np.round(V, 2), delimiter=';', fmt='%1.2f')
 P = V * I
+
+np.savetxt('P.csv', np.round(P, 2), delimiter=';', fmt='%1.2f')
 
 print(I.shape)
 print(V.shape)
@@ -78,6 +83,13 @@ days_per_season = 120
 E = P * days_per_season
 
 E_per_season = E.sum(1)
-print(f'Energía por estación: {E_per_season}')
-print(f'Energía anual: {np.round(E_per_season.sum()/1000, 4)} [kWh]')
+print(f'Energía por estación: {np.round(E_per_season/1000, 3)} [kWh]')
+
+E_anual = np.round(E_per_season.sum()/1000, 4)
+print(f'Energía anual: {E_anual} [kWh]')
+
+E_house = 2765 
+num_of_panels = E_house / E_anual
+print(f'Se necesitan {num_of_panels} paneles solares')
+
 
